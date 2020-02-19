@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+</head>
+<body>
+    <!--Fomulario-->
+    <div class="container-fluid">
+        <h1>Búsqeda de fotos de gatos</h1>
+        <label for="cats">
+            Selecciona una categoría 
+            <select name="cats" id="cats">
+
+            </select>
+            <button id="buscar">Buscar</button>
+        </label>
+    </div>
+    <!--Fin formulario-->
+
+    <!--Galeria-->
+    <div class="container-fluid w-75">
+        <div id="fotos" class="d-inline-flex align-items-center flex-wrap">
+
+        </div>
+
+        <!--Botones-->
+        <div class="container d-flex justify-content-around mt-3">
+            <button id="atras"  >Atras</button>
+             <button id="siguiente" >Siguiente</button>
+        </div>
+       
+    </div>
+    <!--Fin galeria-->
+
+   <script src="js/buscadorGatos.js"></script> 
+   <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" 
+   integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" 
+   crossorigin="anonymous"></script>
+   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" 
+   integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" 
+   crossorigin="anonymous"></script>
+   <script src="js/bootstrap.min.js"></script>
+
+</body>
+</html>
