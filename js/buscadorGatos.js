@@ -43,6 +43,11 @@ request('https://my-json-server.typicode.com/SaraSat/json/categorias').then(impr
 request('https://api.thecatapi.com/v1/images/search?page=1&limit=8&order=Asc&category_ids=5').then(fotoCategory);
 
 
+//Petición para razas
+
+request('https://api.thecatapi.com/v1/breeds?attach_breed=0').then(filtrarRaza);
+
+
 
 //------Funciones-------
 
@@ -62,7 +67,42 @@ function fotoCategory(listFotos) {
         fotos += "<div class='ml-4 mt-5'><img src=" + listFotos[i].url + " width=300 height=200></div<img></div>";
     }
     document.getElementById('fotos').innerHTML = fotos;
+    numPagina();
 }
+
+//Función para autocompletar las razas 
+
+function fotoBreed(){
+
+        var cadena=document.getElementById('raza').value;
+
+        if(cadena.length==0 && cadena===""){
+            document.getElementById("sugerencia").innerHTML="";
+            return;
+        }else{
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange=function(){
+                if(this.readyState==4 && this.status==200){
+                   
+                       document.getElementById('sugerencia').innerHTML += this.responseText.name;
+                      var id=this.responseText.id;
+                   
+                }
+        }
+        xhr.open("GET", "https://api.thecatapi.com/v1/breeds?attach_breed="+id,true);
+       
+        xhr.send("raza="+cadena);
+    }
+}
+
+function filtrarRaza(listBreed){
+    var razas=new Array();
+    for(var i=0; i<listBreed.length;i++ ){
+        razas[i]=listBreed[i].name;
+    }
+}
+
+
 
 
 
@@ -71,6 +111,13 @@ function fotoCategory(listFotos) {
 function generarImagenes(page) {
     request('https://api.thecatapi.com/v1/images/search?page=' + page + '&limit=8&order=Asc&category_ids=' +
         document.getElementById('cats').value).then(fotoCategory);
+
+}
+
+//Paginación
+
+function numPagina(){
+    document.getElementById('pagina').innerHTML=page;
 
 }
 
@@ -83,6 +130,7 @@ function generarImagenes(page) {
 document.getElementById('buscar').addEventListener('click', function() {
     request('https://api.thecatapi.com/v1/images/search?page=1&limit=8&order=Asc&category_ids=' +
         document.getElementById('cats').value).then(fotoCategory);
+        page=1;
 
 });
 
@@ -92,6 +140,7 @@ document.getElementById('buscar').addEventListener('click', function() {
 document.getElementById('siguiente').addEventListener('click', function() {
     page++;
     generarImagenes();
+    numPagina();
 });
 
 
@@ -102,8 +151,19 @@ document.getElementById('atras').addEventListener('click', function() {
     if (page > 1) {
         page--;
         generarImagenes();
+        numPagina();
     }
 
 
-})
+});
+
+//Buscar por raza 
+
+document.getElementById('raza').addEventListener('keyup', fotoBreed);
+
+
+
+
+
+
 
