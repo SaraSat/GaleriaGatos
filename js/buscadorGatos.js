@@ -30,22 +30,30 @@ function request(url) {
  //Número de la página de la galería
 var page = 1;
 
+//Creación de un array para almacenar las razas
+var razas=new Array();
+var idRazas=new Array();
+
+
+//Dirección para filtrado solo con categoria
+var requestCategory='https://api.thecatapi.com/v1/images/search?limit=8&page=' + page + '&order=Asc&category_ids=' +
+document.getElementById('cats').value;
+
+
 
 //------Peticiones------
 
 //Petición a github para sacar las categorias -->
 
-request('https://my-json-server.typicode.com/SaraSat/json/categorias').then(imprimirOps);
+request('https://my-json-server.typicode.com/SaraSat/json/categorias').then(imprimirOpcioness);
 
 
 //Petición a la api de thecatapi.com
 
-request('https://api.thecatapi.com/v1/images/search?page=1&limit=8&order=Asc&category_ids=5').then(fotoCategory);
+request('https://api.thecatapi.com/v1/images/search?category_ids=5&limit=8&page=1&order=Asc').then(fotoCategory);
 
-
-//Petición para razas
-
-request('https://api.thecatapi.com/v1/breeds?attach_breed=0').then(filtrarRaza);
+//Petición para sacar el nombre de la raza 
+request("https://api.thecatapi.com/v1/breeds").then(crearArrayRazas);
 
 
 
@@ -53,7 +61,7 @@ request('https://api.thecatapi.com/v1/breeds?attach_breed=0').then(filtrarRaza);
 
 //Función para imprimir las categorias en options con value =id de la categoria
 
-function imprimirOps(list) {
+function imprimirOpcioness(list) {
     list.forEach(cat => document.getElementById('cats').innerHTML += "<option value=" + cat.id + ">" + cat.name + "</option>");
 
 }
@@ -70,47 +78,66 @@ function fotoCategory(listFotos) {
     numPagina();
 }
 
-//Función para autocompletar las razas 
+//Función para crear un array con el nombre de las razas y otro para las id
 
-function fotoBreed(){
+function crearArrayRazas(listBreed){
+    for(var x=0; x<listBreed.length;x++ ){
+        razas[x]=listBreed[x].name;
+        idRazas[x]=listBreed[x].id;
+    }
 
-        var cadena=document.getElementById('raza').value;
+}
 
-        if(cadena.length==0 && cadena===""){
-            document.getElementById("sugerencia").innerHTML="";
-            return;
-        }else{
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange=function(){
-                if(this.readyState==4 && this.status==200){
-                   
-                       document.getElementById('sugerencia').innerHTML += this.responseText.name;
-                      var id=this.responseText.id;
-                   
+//Función para autocompletar las razas -->
+
+function filtrarRaza(){
+    
+    var inputRaza=document.getElementById('raza').value;
+
+    var sugerencia="";
+
+
+//Comparación del nombre de la raza almacenado en el objeto con la cadena introducida en el input
+    for(var j=0; j<razas.length;j++) {
+        if(inputRaza!="")
+            if (razas[j].substring(0, inputRaza.length).toLocaleUpperCase()== inputRaza.toLocaleUpperCase()){
+                if(sugerencia===""){
+                    sugerencia= "<br><input type=radio  name=breed value="+idRazas[j]+"> "+razas[j]+"</input>";
+                    
+                }else{
+                    id=idRazas[j]
+                    sugerencia = sugerencia + "<br><input type=radio name=breed value="+idRazas[j]+"> "+razas[j];
                 }
+            }
+
         }
-        xhr.open("GET", "https://api.thecatapi.com/v1/breeds?attach_breed="+id,true);
-       
-        xhr.send("raza="+cadena);
+    if(sugerencia=="") {
+        document.getElementById('sugerencia').innerHTML="no hay sugerencias";
+
     }
+    else{
+        document.getElementById('sugerencia').innerHTML=sugerencia;
+
+    } 
+
 }
 
-function filtrarRaza(listBreed){
-    var razas=new Array();
-    for(var i=0; i<listBreed.length;i++ ){
-        razas[i]=listBreed[i].name;
-    }
-}
 
 
-
-
-
-//Función para generar de nuevo la petición de fotos
+//Función para generar de nuevo la petición de fotos --> Si no se ha filtrado por raza, la petición solo incluye categorias
 
 function generarImagenes(page) {
-    request('https://api.thecatapi.com/v1/images/search?page=' + page + '&limit=8&order=Asc&category_ids=' +
-        document.getElementById('cats').value).then(fotoCategory);
+    if(document.getElementsByName('breed')===null || document.getElementsByName('breed').length===0) {
+        requestCategory='https://api.thecatapi.com/v1/images/search?category_ids=' +
+           document.getElementById('cats').value+'&limit=8&page=' + page + '&order=Asc';
+   }
+   else{
+       requestCategory='https://api.thecatapi.com/v1/images/search?breed_ids='+document.form.breed.value+'&category_ids=' +
+       document.getElementById('cats').value+'&limit=8&page=' + page + 
+       '&order=Asc';
+
+   } 
+   request(requestCategory).then(fotoCategory);
 
 }
 
@@ -127,11 +154,10 @@ function numPagina(){
 
 //Evento botón buscar
 
-document.getElementById('buscar').addEventListener('click', function() {
-    request('https://api.thecatapi.com/v1/images/search?page=1&limit=8&order=Asc&category_ids=' +
-        document.getElementById('cats').value).then(fotoCategory);
-        page=1;
-
+document.getElementById('buscar').addEventListener('click', function(event) {
+   event.preventDefault();
+    page=1;
+    generarImagenes();
 });
 
 
@@ -157,9 +183,9 @@ document.getElementById('atras').addEventListener('click', function() {
 
 });
 
-//Buscar por raza 
+//Evento al filtrar por raza 
 
-document.getElementById('raza').addEventListener('keyup', fotoBreed);
+document.getElementById('raza').addEventListener("keyup",filtrarRaza);
 
 
 
